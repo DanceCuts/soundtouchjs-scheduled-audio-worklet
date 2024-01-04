@@ -52,6 +52,20 @@ function _iterableToArrayLimit(r, l) {
     return a;
   }
 }
+function _toPrimitive(t, r) {
+  if ("object" != typeof t || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != typeof i) return i;
+    throw new TypeError("@@toPrimitive must return a primitive value.");
+  }
+  return ("string" === r ? String : Number)(t);
+}
+function _toPropertyKey(t) {
+  var i = _toPrimitive(t, "string");
+  return "symbol" == typeof i ? i : String(i);
+}
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -234,20 +248,6 @@ function _arrayLikeToArray(arr, len) {
 }
 function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-function _toPrimitive(input, hint) {
-  if (typeof input !== "object" || input === null) return input;
-  var prim = input[Symbol.toPrimitive];
-  if (prim !== undefined) {
-    var res = prim.call(input, hint || "default");
-    if (typeof res !== "object") return res;
-    throw new TypeError("@@toPrimitive must return a primitive value.");
-  }
-  return (hint === "string" ? String : Number)(input);
-}
-function _toPropertyKey(arg) {
-  var key = _toPrimitive(arg, "string");
-  return typeof key === "symbol" ? key : String(key);
 }
 
 var FifoSampleBuffer = function () {
@@ -1370,19 +1370,16 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
       }
       var playbackPosition = this._filter.position - this._filterPositionAtStart;
       if (playbackPosition > playbackDurationSamples) {
-        console.log("playbackDurationSamples reached, stop playing");
         this.resetAndEnd();
         return true;
       }
       if (_currentTime + bufferSize / sampleRate < when) {
-        console.log("not playing yet!");
         this.reset();
         return true;
       }
       var left = outputs[0][0];
       var right = outputs[0].length > 1 ? outputs[0][1] : outputs[0][0];
       if (!left || left && !left.length) {
-        console.log("!left");
         this.resetAndEnd();
         return false;
       }
@@ -1391,22 +1388,10 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
       var samples = new Float32Array(totalFrames * 2);
       var framesExtracted = this._filter.extract(samples, totalFrames);
       if (isNaN(samples[0]) || !framesExtracted) {
-        console.log({
-          when: when,
-          _currentTime: _currentTime,
-          sampleRate: sampleRate,
-          playbackDurationSamples: playbackDurationSamples,
-          playbackPosition: playbackPosition,
-          startFrame: startFrame,
-          totalFrames: totalFrames,
-          samples: samples,
-          framesExtracted: framesExtracted
-        });
         this.resetAndEnd();
         return true;
       }
       if (this._justEnded) {
-        console.log("_justEnded");
         this._justEnded = false;
         return true;
       }
