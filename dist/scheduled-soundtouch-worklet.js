@@ -1,5 +1,5 @@
 /*
-* SoundTouch Audio Worklet v0.1.25 AudioWorklet using the
+* SoundTouch Audio Worklet v0.1.26 AudioWorklet using the
 * SoundTouch audio processing library
 * 
 * Copyright (c) Olli Parviainen
