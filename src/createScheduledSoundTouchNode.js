@@ -172,6 +172,10 @@ export function createScheduledSoundTouchNode(audioCtx, audioBuffer, onInitializ
     stop() {
       this._playing = false;
 
+      this.port.postMessage({
+        message: "STOP",
+      });
+      
       if (this.bufferNode) {
         this.bufferNode.disconnect(); //disconnecting bufferNode stops the worklet
       }

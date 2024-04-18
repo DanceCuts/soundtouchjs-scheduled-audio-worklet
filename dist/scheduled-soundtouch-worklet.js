@@ -1301,6 +1301,8 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
         return this.port.postMessage({
           message: 'PROCESSOR_READY'
         });
+      } else if (message === "STOP") {
+        return this.resetAndEnd();
       }
     }
   }, {
@@ -1328,7 +1330,6 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
     value: function resetAndEnd() {
       this.reset();
       this._justEnded = true;
-      this._sendMessage('PROCESSOR_END');
     }
   }, {
     key: "process",
@@ -1371,6 +1372,7 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
       var playbackPosition = this._filter.position - this._filterPositionAtStart;
       if (playbackPosition > playbackDurationSamples) {
         this.resetAndEnd();
+        this._sendMessage('PROCESSOR_END');
         return true;
       }
       if (_currentTime + bufferSize / sampleRate < when) {
@@ -1381,6 +1383,7 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
       var right = outputs[0].length > 1 ? outputs[0][1] : outputs[0][0];
       if (!left || left && !left.length) {
         this.resetAndEnd();
+        this._sendMessage('PROCESSOR_END');
         return false;
       }
       var startFrame = Math.round(Math.max(0, (when - _currentTime) * sampleRate));
@@ -1389,6 +1392,7 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
       var framesExtracted = this._filter.extract(samples, totalFrames);
       if (isNaN(samples[0]) || !framesExtracted) {
         this.resetAndEnd();
+        this._sendMessage('PROCESSOR_END');
         return true;
       }
       if (this._justEnded) {

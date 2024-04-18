@@ -299,7 +299,13 @@ function createScheduledSoundTouchNode(audioCtx, audioBuffer) {
     }, {
       key: "stop",
       value: function stop() {
+        var sendStopMsg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
         this._playing = false;
+        if (sendStopMsg) {
+          this.port.postMessage({
+            message: "STOP"
+          });
+        }
         if (this.bufferNode) {
           this.bufferNode.disconnect();
         }

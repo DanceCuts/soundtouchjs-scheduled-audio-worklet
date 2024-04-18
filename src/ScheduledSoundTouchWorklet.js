@@ -61,6 +61,9 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
         message: 'PROCESSOR_READY',
       });
     }
+    else if (message === "STOP") {
+      return this.resetAndEnd();
+    }
   }
 
   /**
@@ -119,7 +122,6 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
   resetAndEnd() {
     this.reset();
     this._justEnded = true;
-    this._sendMessage('PROCESSOR_END');
   }
    
   process(inputs, outputs, parameters) {
@@ -158,6 +160,7 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
     if (playbackPosition > playbackDurationSamples) { 
       //playbackDurationSamples reached, stop playing
       this.resetAndEnd();
+      this._sendMessage('PROCESSOR_END');
       return true;
     }
 
@@ -172,6 +175,7 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
 
     if (!left || (left && !left.length)) {
       this.resetAndEnd();
+      this._sendMessage('PROCESSOR_END');
       return false; // no output?! guess it's time to die!
     }
 
@@ -183,6 +187,7 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
     if (isNaN(samples[0]) || !framesExtracted) {
       //no more audio left to process, stop playing
       this.resetAndEnd();
+      this._sendMessage('PROCESSOR_END');
       return true;
     }
 
@@ -201,7 +206,6 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
         right[i] = 0;
       }
     }
-
     return true;
   }
 }
