@@ -1375,7 +1375,7 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
         this._sendMessage('PROCESSOR_END');
         return true;
       }
-      if (_currentTime + bufferSize / sampleRate < when) {
+      if (_currentTime < when) {
         this.reset();
         return true;
       }
@@ -1389,8 +1389,10 @@ var ScheduledSoundTouchWorklet = function (_AudioWorkletProcesso) {
       var startFrame = Math.round(Math.max(0, (when - _currentTime) * sampleRate));
       var totalFrames = Math.min(bufferSize - startFrame, playbackDurationSamples - playbackPosition);
       var samples = new Float32Array(totalFrames * 2);
+      var trueFramesExtracted = Math.min(totalFrames, playbackDurationSamples - playbackPosition);
       var framesExtracted = this._filter.extract(samples, totalFrames);
-      if (isNaN(samples[0]) || !framesExtracted) {
+      if (isNaN(samples[0]) && trueFramesExtracted <= 0
+      || !framesExtracted) {
         this.resetAndEnd();
         this._sendMessage('PROCESSOR_END');
         return true;

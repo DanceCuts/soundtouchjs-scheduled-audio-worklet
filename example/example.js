@@ -17,6 +17,7 @@ import {audioBufferToWav} from "./audiobuffer-to-wav.js";
 const fileInput = document.getElementById('fileinput');
 const playBtn = document.getElementById('play');
 const stopBtn = document.getElementById('stop');
+const restartBtn = document.getElementById('restart');
 const exportBtn = document.getElementById('export');
 const exportLoading = document.getElementById('exportLoading');
 const whenSlider = document.getElementById('whenSlider');
@@ -50,6 +51,7 @@ let buffer;
 const resetControls = () => {
   playBtn.setAttribute('disabled', 'disabled');
   stopBtn.setAttribute('disabled', 'disabled');
+  restartBtn.setAttribute('disabled', 'disabled');
 };
 
 const onEnd = () => {
@@ -60,11 +62,13 @@ const onEnd = () => {
 
   resetControls();
   playBtn.removeAttribute('disabled');
+  restartBtn.removeAttribute('disabled');
 };
 
 const onInitialized = (_duration) => {
   resetControls();
   playBtn.removeAttribute('disabled');
+  restartBtn.removeAttribute('disabled');
   exportBtn.removeAttribute('disabled');
   duration.innerHTML = `Song is ${_duration} seconds long`;
   startSlider.max = _duration;
@@ -79,6 +83,7 @@ const loadSource = async (file) => {
   }
   try {
     playBtn.setAttribute('disabled', 'disabled');
+    restartBtn.setAttribute('disabled', 'disabled');
 
     audioCtx.resume();
     const data = await audioCtx.decodeAudioData(await file.arrayBuffer());
@@ -111,6 +116,7 @@ const play = function () {
 
     playBtn.setAttribute('disabled', 'disabled');
     stopBtn.removeAttribute('disabled');
+    restartBtn.removeAttribute('disabled');
   }
 };
 
@@ -121,6 +127,7 @@ const stop = () => {
   soundtouch.stop();
 
   stopBtn.setAttribute('disabled', 'disabled');
+  restartBtn.removeAttribute('disabled');
   playBtn.removeAttribute('disabled');
 };
 
@@ -129,11 +136,16 @@ fileInput.onchange = (e) => {
 };
 
 playBtn.onclick = play;
-stopBtn.onclick = () => stop();
+stopBtn.onclick = stop;
+restartBtn.onclick = () => {
+  stop();
+  play();
+};
 exportBtn.onclick = async () => {
   if (!buffer) return;
 
   playBtn.setAttribute('disabled', 'disabled');
+  restartBtn.setAttribute('disabled', 'disabled');
   exportBtn.setAttribute('disabled', 'disabled');
   exportLoading.style.display = "block";
   audioCtx = new OfflineAudioContext({
@@ -156,16 +168,14 @@ exportBtn.onclick = async () => {
       document.body.removeChild(el);
       audioCtx = new AudioContext();
       await createNode();
-      playBtn.removeAttribute('disabled');
-      exportBtn.removeAttribute('disabled');
-      exportLoading.style.display = "none";
     }
     catch (err) {
       console.error(`ERROR whilst exporting: ${err}`);
-      playBtn.removeAttribute('disabled');
-      exportBtn.removeAttribute('disabled');
-      exportLoading.style.display = "none";
     }
+    playBtn.removeAttribute('disabled');
+    restartBtn.removeAttribute('disabled');
+    exportBtn.removeAttribute('disabled');
+    exportLoading.style.display = "none";
   };
 };
 

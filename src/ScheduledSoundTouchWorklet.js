@@ -164,7 +164,7 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
       return true;
     }
 
-    if (_currentTime + (bufferSize / sampleRate) < when) { 
+    if (_currentTime < when) { 
       //not playing yet!
       this.reset();
       return true;
@@ -182,9 +182,11 @@ class ScheduledSoundTouchWorklet extends AudioWorkletProcessor {
     const startFrame = Math.round(Math.max(0, (when - _currentTime) * sampleRate));
     const totalFrames = Math.min(bufferSize - startFrame, playbackDurationSamples - playbackPosition);
     let samples = new Float32Array(totalFrames * 2);
+    const trueFramesExtracted = Math.min(totalFrames, playbackDurationSamples - playbackPosition); // for some reason, the "frames extracted" returned by soundtouch extract() is > 0 even after the audio has ended?!? this should get the "true" number of frames extracted.
     const framesExtracted = this._filter.extract(samples, totalFrames);
 
-    if (isNaN(samples[0]) || !framesExtracted) {
+    if ((isNaN(samples[0]) && trueFramesExtracted <= 0) //sometimes right after starting playback, the first few extract() calls return NaN samples. This check prevents it from immediately stopping after start
+      || !framesExtracted) {
       //no more audio left to process, stop playing
       this.resetAndEnd();
       this._sendMessage('PROCESSOR_END');
