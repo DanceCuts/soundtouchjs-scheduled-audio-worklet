@@ -166,6 +166,7 @@ export function createScheduledSoundTouchNode(audioCtx, audioBuffer, onInitializ
       this.bufferNode = this.context.createBufferSource();
       this.bufferNode.buffer = this.audioBuffer;
       this.bufferNode.connect(this);
+      this.bufferNode.start();
     }
 
     /** Stops playback of the node. */
@@ -177,6 +178,7 @@ export function createScheduledSoundTouchNode(audioCtx, audioBuffer, onInitializ
       });
       
       if (this.bufferNode) {
+        this.bufferNode.stop();
         this.bufferNode.disconnect(); //disconnecting bufferNode stops the worklet
       }
       this.bufferNode = null;

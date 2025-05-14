@@ -295,6 +295,7 @@ function createScheduledSoundTouchNode(audioCtx, audioBuffer) {
         this.bufferNode = this.context.createBufferSource();
         this.bufferNode.buffer = this.audioBuffer;
         this.bufferNode.connect(this);
+        this.bufferNode.start();
       }
     }, {
       key: "stop",
@@ -304,6 +305,7 @@ function createScheduledSoundTouchNode(audioCtx, audioBuffer) {
           message: "STOP"
         });
         if (this.bufferNode) {
+          this.bufferNode.stop();
           this.bufferNode.disconnect();
         }
         this.bufferNode = null;
